@@ -4,7 +4,8 @@
 - `high` : 囲んだ部分をハイライトします。`<span class = "high"> --- </span>`のように用いると良いです。
 - `quote` : 囲んだ部分を字下げ(インデント)します。`<div class = "quote"> --- <\div>`のように用いると良いです。
 - `box` : 囲んだ部分を四角に囲みます。`details`タグと併用することを想定しています。`<details class = "box">---</details>`のように用いると良いです。もちろん`details`タグ外でも用いることができます。
-
+- `inline inline--ac` : ACマークを表示します。`<span class = "inline inline--ac">AC</span>`のように用いると良いです。`<span class = "inline inline-wa">WA</span>`とするとWAのマークを作れます。RE,TLEも同じUIなので使いまわしてください。
+  
 
 # 注記
 - 2025/8/11日13:50にテンプレートを更新しました。
