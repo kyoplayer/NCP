@@ -25,6 +25,10 @@ class XORshift:
         #長さNの各要素がmin_n以上max_n以下の数列を生成する
         return [self.randint(min_n, max_n) for _ in range(N)]
 
+    def gen_grid(self,H,W):
+        #H*Wのgridを生成する
+        return [[".#"[b] for b in self.sequence(W,0,1)] for _ in range(H)]
+
 
 
 def generate(seed):
@@ -68,11 +72,14 @@ def generate(seed):
   
 
   A = xs.sequence(N, min_n, max_n)
+  G = xs.gen_grid(10,3)
   
-  return N,A
+  return N,A,G
 
 # 使用例
 seed = 97
-N,A = generate(seed)
+N,A,G = generate(seed)
 print(N)
 print(A)
+for g in G:
+    print(g)
