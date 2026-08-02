@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <script type="text/javascript"
+    src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" }},
+  tex2jax: {
+    inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+    processEscapes: true
+  },
+  "HTML-CSS": { 
+    scale: 125,
+    matchFontHeight: false
+  },
+  displayAlign: "left",
+  displayIndent: "2em"
+});
+  </script>
+  <style>
+    html {
+      font-size: 18px;
+    }
+    body {
+      background-color: #f5f5f5;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+      font-family: "ヒラギノ角ゴ ProN W3";
+    }
+    .container {
+      background-color: white;
+      width: 80%;
+      min-height: 80vh;
+      padding-left: 40px;
+      padding-right: 40px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    /* 入出力例のスタイル */
+    .code-box {
+      background-color: #f5f5f5;
+      padding: 3px 10px 3px 10px;
+      border-radius: 1px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #a9a9a9;
+    }
+    /* コピーボタンのスタイル */
+    .example-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-btn {
+      align-self: flex-end;
+      position: absolute;
+      background-color: white;
+      color: black;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 0;
+      margin-right: 0;
+      border: 1px solid #a9a9a9;
+    }
+    .copy-btn:hover {
+      background-color: white;
+    }
+    .submit-btn, .All-submit-btn {
+      background-color: #4682B4;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .block {
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .title {
+      border-bottom: 1px solid #eee;
+    }
+    .submit-block {
+      padding-bottom: 20px;
+      border-bottom: 1px dotted #eee;
+    }
+    textarea {
+      font-size: 18px;
+      width: 99%;
+      padding: 3px;
+    }
+    h1 {
+      font-size: 25px;
+    }
+    .air {
+      height: 50px;
+    }
+    .URL {
+      text-decoration: none;
+      color: black;
+      border: 1px solid #a9a9a9;
+      font-size: 13px;
+      font-weight: normal;
+      display: inline-block;
+      width: 45px;
+      height: 30px;
+      text-align: center;
+      line-height: 30px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+    .result-box {
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 20px;
+      display: inline-block;
+    }
+
+    .high {
+      background-color: #FFEEFF;
+      color: #CC3366;
+  }
+    .ac-box {
+      background-color: #00CC00; /* AC のときは緑 */
+    }
+    .wa-box {
+      background-color: orange; /* WA のときはオレンジ */
+    }
+
+ 	 .apply-mathjax{
+		line-height: 0.8em;
+	}
+	
+	pre{
+		overflow-x: auto;
+	}
+	@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+.quote{
+	padding-left:40px;
+	border-left: 3px solid #eee;
+}
+
+
+
+.box{
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 0.5em 0.5em 0;
+}
+
+.inline{
+  padding: 1px 8px;
+  font-weight: bold;
+  color: #eee;
+  border-radius: 6%;
+}
+.inline--wa{
+  background-color: #F0AD4E;
+}
+.inline--ac{
+  background-color: #5cb85c;
+}
+
+      
+  </style>
+  <script>
+function copyToClipboard(button) {
+  // コピーするテキストを取得
+  const preTag = button.previousElementSibling;
+  const text = preTag.innerText;
+
+  // 1) クリップボードAPI が使えるかつセキュアコンテキストならそちらを利用
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        button.innerText = "Copied!";
+        setTimeout(() => button.innerText = "Copy", 1500);
+      })
+      .catch(err => {
+        console.error("Clipboard API error:", err);
+        fallbackCopy(text, button);
+      });
+  } else {
+    // 2) それ以外は execCommand フォールバック
+    fallbackCopy(text, button);
+  }
+}
+
+function fallbackCopy(text, button) {
+  // 一時テキストエリアを作って select → execCommand('copy')
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  // ページレイアウトを崩さないため非表示に
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  try {
+    const successful = document.execCommand("copy");
+    if (successful) {
+      button.innerText = "Copied!";
+      setTimeout(() => button.innerText = "Copy", 1500);
+    } else {
+      console.warn("execCommand('copy') was unsuccessful");
+    }
+  } catch (err) {
+    console.error("execCommand('copy') error:", err);
+  }
+
+  document.body.removeChild(textarea);
+}
+</script>
+</head>
+
+<!--ここより上は絶対に触らないようお願いします-->
+
+
+<!--チェックシート
+必須:
+このテンプレートを最後まで確認しましたか？
+問題名は記述しましたか？
+問題文は記述しましたか？
+制約は現実的な実行時間で解けますか？
+入出力例は手計算で確かめましたか？
+テストケースは制約いっぱいいっぱいまで含まれていますか？
+答えの移植間違いはありませんか?
+
+
+確認:
+MathJaxで記述できましたか？
+特に入力はMathJaxで記述できましたか？preタグで囲うとMathJaxは適用されません。
+ランダムジャッジのコードを書けましたか？(py,cpp)
+
+その他伝えておきたいことがあれば:
+
+
+-->
+
+<body>
+  <div class="container">
+    <div class="air"></div>
+    <div class="title">
+      <h1>
+        <!---ここに問題名を記述--->
+        <a class="URL" href="//sites.google.com/view/nanyocompetitiveprogramming/%E3%82%B3%E3%83%B3%E3%83%86%E3%82%B9%E3%83%88%E4%B8%80%E8%A6%A7/contest005/editorials/a">解説</a>
+      </h1>
+    </div>
+
+
+
+    <div class="block">
+      <h2>問題文</h2>
+      <!---ここに問題文を記述--->
+
+		<!---問題文ここまで--->
+    </div>
+
+
+
+    <div class="block">
+      <h2>制約</h2>
+
+      <ul>
+        <!---制約を箇条書きで示す--->
+			<li>制約1</li>
+			<li>制約2</li>
+			<!---もっと増やしたい場合は<li></li>タグを下に続ける--->
+			
+      </ul>
+
+    </div>
+
+
+
+    <div class="block">
+      <h2>入力</h2>
+      <p>サンプル入力は以下の形式で与えられる。</p>
+      <div class="code-box">
+        <span class="apply-mathjax">
+			<!---ここに入力を記述。空白、改行も反映される--->
+</span>
+
+      </div>
+      <p>
+        テストケースについては、seed値によるランダム生成を用いてジャッジする。以下から、生成コードを入手されたい。
+      </p>
+      <details>
+        <summary>コード(Python)</summary>
+        <div class="code-box">
+          <pre id="code-block-py"></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <script>
+          var code = `
+//ここにPythonのランダム生成コードを入れる
+//できなかったら置いといてください
+`;
+          document.getElementById('code-block-py').textContent = code;
+        </script>
+      </details>
+      <details>
+        <summary>コード(C++)</summary>
+        <div class="code-box">
+          <pre id="code-block"></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <script>
+          var code = `
+//ここにC++のランダム生成コードを入れる
+//できなかったら置いといてください
+`;
+          document.getElementById('code-block').textContent = code;
+        </script>
+      </details>
+
+
+      <h2>出力</h2>
+      <p>答えを1行で出力せよ。</p>
+    </div>
+
+
+
+    <div class="block">
+      <h2>入力例1</h2>
+      <div class="code-box">
+        <pre data-mathjax>
+<!---ここに入力例を置く。空白、改行も反映される。余計な改行が含まれてしまうのでこのコメントアウトは消す--->
+3 2
+2 3 5
+</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <h2>出力例1</h2>
+      <div class="code-box">
+        <pre data-mathjax>
+<!---ここに出力例を置く。空白、改行も反映される。余計な改行が含まれてしまうのでこのコメントアウトは消す--->
+Yes
+</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <!---何か補足等があればこの場所に書き記す--->
+
+
+<!---サンプルをもっと増やしたい場合は、ここから、[ここまで]をコピペする--->
+
+      <h2>入力例2</h2>
+      <div class="code-box">
+        <pre data-mathjax>
+<!---ここに入力例を置く。空白、改行も反映される。余計な改行が含まれてしまうのでこのコメントアウトは消す--->
+5 10
+10 24 11 28 19
+</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <h2>出力例2</h2>
+      <div class="code-box">
+        <pre data-mathjax>
+<!---ここに出力例を置く。空白、改行も反映される。余計な改行が含れてしまうのでこのコメントアウトは消す--->
+184
+</pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+	    
+<!---サンプルをもっと増やしたい場合はここまでをコピペする--->
+	    
+    </div>
+
+
+
+
+    <div class="block">
+      <h2>提出</h2>
+
+
+<!---以下テストケース--->
+
+      <div class="submit-block">
+        <h3>input_01</h3>
+        <div class="code-box">
+          <pre><!---テストするseed値を入れる---></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_01</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+<!---テストケースをもっと増やしたい場合は、ここから、[ここまで]をコピペする--->
+
+      <div class="submit-block">
+        <h3>input_02</h3>
+        <div class="code-box">
+          <pre><!---テストするseed値を入れる---></pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+        <h3>output_02</h3>
+        <textarea rows="2" placeholder="ここに入力"></textarea>
+      </div>
+
+<!---テストケースをもっと増やしたい場合は、ここまでをコピペする--->
+
+
+
+      <button class="submit-btn">提出</button>
+      <div class="result-container"></div>
+    </div>
+
+
+
+
+    <div class="block">
+      <h2>一括提出</h2>
+      <p>
+        各行に各テストケースの実行結果を貼り付けることで、一括で提出が可能です。
+      </p>
+      <h3>seed値</h3>
+      <div class="code-box">
+        <pre><!---ここにseed値を半角空白区切りで順番に並べる。例:5 6 7 353 1340---></pre>
+        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+      </div>
+      <div class="air"></div>
+      <textarea name="All-submit" rows="15" placeholder="複数行に渡って出力"></textarea>
+      <button class="All-submit-btn">提出</button>
+      <div class="overall-result-bulk"></div>
+    </div>
+    <div class="air"></div>
+  </div>
+</body>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      MathJax.typesetPromise();
+  });
+
+  // 各テストケースの正解を以下の形式に従って入力してください。
+  const expectedAnswers = {
+
+    "01": "0",
+    "02": "0",
+    
+  };
+
+  // この問題のアルファベットを入れてください
+  const alphabet = "A";
+
+  // この問題の得点を入れてください(小課題ごとに、順番に)
+  const points = [50,100];
+
+  // 小課題ごとの対応するテストケース番号を入れてください
+  const tasks = [[1],[1,2]];
+
+  // コンテストで共通する秘密鍵を入力してください(英文字で入力、空白禁止)
+  const secret = "MY_SECRET_KEY";
+  
+
+
+// ここより下は触らないでください
+  // パスワード生成用の基準時刻 (JST) を以下で定義してください。
+  const referenceJST = new Date('2026-08-01T12:00:00+09:00');
+
+// ここより下は触らないでください
+  const cntTestCases = expectedAnswers.length;
+
+  // ========== ここから EPS 許容ロジック ==========
+  // defaultEPS を 0 にしておけば従来通り厳密一致
+  const defaultEPS = 0; // 例: 1e-6 <-> 10^{-6}
+
+  function parseTokens(str) {
+    return (str + "").trim().split(/\s+/).filter(t => t !== "");
+  }
+
+  function isNumericTokenArray(str) {
+    const toks = parseTokens(str);
+    if (toks.length === 0) return false;
+    return toks.every(t => {
+      // 空文字や非数値を弾く
+      const n = Number(t);
+      return t !== '' && !Number.isNaN(n);
+    });
+  }
+
+  /**
+   * userStr, expectedStr: 出力全体の文字列
+   * eps: 絶対誤差の閾値（数値）
+   * 戻り値: true = AC, false = WA
+   */
+  function compareWithEps(userStr, expectedStr, eps) {
+    const userT = parseTokens(userStr);
+    const expT = parseTokens(expectedStr);
+
+    // トークン数が異なれば不一致
+    if (userT.length !== expT.length) return false;
+
+    // もし期待解が数値トークン群なら数値比較（ユーザ出力も同様に数値である必要がある）
+    if (isNumericTokenArray(expT.join(' ')) && isNumericTokenArray(userT.join(' '))) {
+      for (let i = 0; i < expT.length; i++) {
+        const ue = Number(userT[i]);
+        const ex = Number(expT[i]);
+        const diff = Math.abs(ue - ex);
+        const relThreshold = eps * Math.max(1, Math.abs(ex));
+        if (!(diff <= eps || diff <= relThreshold)) return false;
+      }
+      return true;
+    } else {
+      // 非数値トークン（文字列）については従来どおりトークン結合で厳密一致
+      return userT.join(' ') === expT.join(' ');
+    }
+  }
+
+  // ========== ここまで EPS 許容ロジック ==========
+
+  // ========== ここからパスワード生成関数 ==========
+  // Base64URLエンコード
+  function base64urlEncode(bytes) {
+    let binary = "";
+    for (const b of bytes) binary += String.fromCharCode(b);
+
+    return btoa(binary)
+      .replace(/\+/g,"-")
+      .replace(/\//g,"_")
+      .replace(/=+$/,"");
+  }
+
+  // HMAC-SHA256
+  async function hmacSHA256(message) {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256"},
+      false,
+      ["sign"]
+    );
+
+    const sig = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(message)
+    );
+
+    return new Uint8Array(sig);
+  }
+
+  async function makeCode(dt,ch,P) {
+    const msg = `${dt}:${ch}:${P}`;
+
+    const payload = base64urlEncode(
+      new TextEncoder().encode(msg)
+    );
+
+    const sig = base64urlEncode(
+      await hmacSHA256(msg)
+    );
+
+      return payload + "." + sig;
+  }
+
+  // ========== ここまでパスワード生成関数 ==========
+
+  document.querySelector('.submit-btn').addEventListener('click', async function() {
+    // 既に表示されている結果エリアを削除（再提出時の重複防止）
+    document.querySelectorAll('.result-msg').forEach(el => el.remove());
+    document.querySelectorAll('.overall-result').forEach(el => el.remove());
+
+    let IsCorrect = Array(cntTestCases).fill(false);
+
+    const submitBlocks = document.querySelectorAll('.submit-block');
+    let overallCorrect = true;
+    let WA_cnt = 0;
+    let AC_cnt = 0;
+
+    submitBlocks.forEach((block,idx) => {
+      const header = block.querySelector('h3');
+      const match = header.textContent.trim().match(/_(\d{2})/);
+      if (!match) return;
+      const caseNum = match[1];
+      const userOutput = block.querySelector('textarea').value.trim();
+      const correct = expectedAnswers[caseNum];
+      const resultMsg = document.createElement("div");
+      resultMsg.className = "result-msg result-box";
+
+      // すべてのケースで defaultEPS を使う
+      const eps = defaultEPS;
+      const isOk = compareWithEps(userOutput, correct, eps);
+
+      if (isOk) {
+        resultMsg.textContent = `AC`;
+        resultMsg.classList.add("ac-box");
+        AC_cnt++;
+        IsCorrect[idx] = true;
+      } else {
+        resultMsg.textContent = `WA`;
+        resultMsg.classList.add("wa-box");
+        overallCorrect = false;
+        WA_cnt++;
+      }
+      block.appendChild(resultMsg);
+    });
+
+    const overallDiv = document.createElement("div");
+    overallDiv.className = "overall-result result-box";
+
+
+    let sumPoint = 0;
+    tasks.forEach((oneTasks,idx) => {
+      let cntOk = 0;
+      const overallDiv = document.createElement("div");
+      overallDiv.className = "overall-result result-box";
+      oneTasks.forEach((num,j) => {
+        num -= 1;
+        if (IsCorrect[num]) cntOk += 1;
+      });
+      
+      if (cntOk === oneTasks.length){
+        sumPoint += points[idx];
+        overallDiv.textContent = "";
+        overallDiv.classList.add("ac-box");
+        overallDiv.textContent += `小課題 ${idx+1}: AC`
+      }
+      else {
+        overallDiv.textContent = "";
+        overallDiv.classList.add("wa-box");
+        overallDiv.textContent += `小課題 ${idx+1}: ${oneTasks.length - cntOk}/${oneTasks.length} WA`;
+      }
+
+      overallDiv.style.display = "block";
+      overallDiv.style.marginLeft = "20px";
+      overallDiv.style.marginTop = "10px";
+      overallDiv.style.width = "fit-content";
+      document.querySelector('.result-container').appendChild(overallDiv);
+    });
+
+    const now = new Date();
+    const dt = Math.floor((now - referenceJST)/ 1000);
+
+    // 小課題が1つ以上正解しているならパスワードを表示
+    if (sumPoint){
+      const overallDiv = document.createElement("div");
+      overallDiv.className = "overall-result result-box";
+      const code = await makeCode(dt,alphabet,sumPoint);
+      overallDiv.textContent = `Password: ${code}`;
+      overallDiv.classList.add("ac-box");
+      overallDiv.style.display = "block";
+      overallDiv.style.marginLeft = "20px";
+      overallDiv.style.marginTop = "10px";
+      overallDiv.style.width = "fit-content";
+      document.querySelector('.result-container').appendChild(overallDiv);
+    }
+  });
+
+
+  document.querySelector('.All-submit-btn').addEventListener('click', async function() {
+    const bulkTextarea = document.querySelector('textarea[name="All-submit"]');
+    const userLines = bulkTextarea.value.trim().split(/\r?\n/).map(line => line.trim());
+    const filteredLines = userLines.filter(line => line !== "");
+
+    let IsCorrect = Array(cntTestCases).fill(false);
+
+    // expectedAnswers をキー順で整列して key/value の配列にする
+    const expectedArr = Object.keys(expectedAnswers)
+      .sort()
+      .map(key => ({ key: key, value: expectedAnswers[key] }));
+
+    let overallCorrect = true;
+    let resultHtml = "";
+
+    if (filteredLines.length !== expectedArr.length) {
+      overallCorrect = false;
+      resultHtml += `出力行数が異なります。（期待：${expectedArr.length}行、あなたは：${filteredLines.length}行）<br>`;
+    }
+    for (let i = 0; i < expectedArr.length; i++) {
+      const caseNum = expectedArr[i].key;
+      const correct = expectedArr[i].value;
+      const userLine = filteredLines[i] || "";
+      // ここでも defaultEPS のみを利用
+      if (compareWithEps(userLine, correct, defaultEPS)) {
+        resultHtml += `テストケース ${i+1}: AC<br>`;
+        IsCorrect[i] = true;
+      } else {
+        resultHtml += `テストケース ${i+1}: WA<br>`;
+        overallCorrect = false;
+      }
+    }
+
+    let overallDiv = document.querySelector('.overall-result.bulk');
+    if (!overallDiv) {
+      overallDiv = document.createElement("div");
+      overallDiv.className = "overall-result bulk result-box";
+      bulkTextarea.parentElement.appendChild(overallDiv);
+    }
+
+    document.querySelector('.overall-result-bulk').innerHTML="";
+
+    let sumPoint = 0;
+    tasks.forEach((oneTasks,idx) => {
+      let cntOk = 0;
+      oneTasks.forEach((num,j) => {
+        num -= 1;
+        if (IsCorrect[num]){
+          cntOk += 1
+        }
+      });
+
+      const div = document.createElement("div");
+      div.className = "overall-result result-box";
+
+      if (cntOk === oneTasks.length){
+        sumPoint += points[idx];
+        div.classList.add("ac-box");
+        div.textContent += `小課題 ${idx+1}: AC`
+      }
+      else {
+        div.textContent = "";
+        div.classList.add("wa-box");
+        div.textContent += `小課題 ${idx+1}: ${oneTasks.length - cntOk}/${oneTasks.length} WA`;
+      }
+
+      div.style.display = "block";
+      div.style.marginLeft = "20px";
+      div.style.marginTop = "10px";
+      div.style.width = "fit-content";
+      document.querySelector('.overall-result-bulk').appendChild(div);
+    });
+
+    const now = new Date();
+    const dt = Math.floor((now - referenceJST)/ 1000);
+
+    // 小課題が1つ以上正解しているならパスワードを表示
+    if (sumPoint){
+      const overallDiv = document.createElement("div");
+      overallDiv.className = "overall-result result-box";
+      const code = await makeCode(dt,alphabet,sumPoint);
+      overallDiv.textContent = `Password: ${code}`;
+      overallDiv.classList.add("ac-box");
+      overallDiv.style.display = "block";
+      overallDiv.style.marginLeft = "20px";
+      overallDiv.style.marginTop = "10px";
+      overallDiv.style.width = "fit-content";
+      document.querySelector('.overall-result-bulk').appendChild(overallDiv);
+    }
+  });
+</script>
+
+<script>
+    (function() {
+      // ① 基準となる JST 時刻を指定（ISO8601＋タイムゾーンで表現）
+      //    例: 2025年5月1日 12:00 JST
+      const targetJST = new Date('2026-08-01T12:00:00+09:00').getTime();
+
+      // ② 要素をまとめて取得
+      const elems = document.querySelectorAll('.URL');
+
+      // ③ 非表示／表示を切り替える関数
+      function updateVisibility() {
+        const now = Date.now();
+        if (now < targetJST) {
+          // 基準時刻前はすべて非表示
+          elems.forEach(el => {
+            el.style.display = 'none';
+          });
+        } else {
+          // 基準時刻を過ぎたら再表示し、以降のチェックを止める
+          elems.forEach(el => {
+            el.style.display = '';
+            // el.style.opacity = '1';
+          });
+          clearInterval(timer);
+        }
+      }
+
+      // ④ ページ読み込み直後にも実行
+      document.addEventListener('DOMContentLoaded', updateVisibility);
+      // ⑤ 以降は1秒ごとに確認
+      const timer = setInterval(updateVisibility, 1000);
+    })();
+  </script>
+</html>
