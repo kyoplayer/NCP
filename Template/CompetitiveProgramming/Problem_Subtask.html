@@ -403,35 +403,9 @@ Yes
     <div class="block">
       <h2>提出</h2>
 
-
-<!---以下テストケース--->
-
-      <div class="submit-block">
-        <h3>input_01</h3>
-        <div class="code-box">
-          <pre><!---テストするseed値を入れる---></pre>
-          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
-        </div>
-        <h3>output_01</h3>
-        <textarea rows="2" placeholder="ここに入力"></textarea>
-      </div>
-
-<!---テストケースをもっと増やしたい場合は、ここから、[ここまで]をコピペする--->
-
-      <div class="submit-block">
-        <h3>input_02</h3>
-        <div class="code-box">
-          <pre><!---テストするseed値を入れる---></pre>
-          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
-        </div>
-        <h3>output_02</h3>
-        <textarea rows="2" placeholder="ここに入力"></textarea>
-      </div>
-
-<!---テストケースをもっと増やしたい場合は、ここまでをコピペする--->
-
-
-
+    <!-- ここに個別提出の欄ができる(自動生成なので操作不要) -->
+    <div id = "submit-container"></div>
+    
       <button class="submit-btn">提出</button>
       <div class="result-container"></div>
     </div>
@@ -445,10 +419,7 @@ Yes
         各行に各テストケースの実行結果を貼り付けることで、一括で提出が可能です。
       </p>
       <h3>seed値</h3>
-      <div class="code-box">
-        <pre><!---ここにseed値を半角空白区切りで順番に並べる。例:5 6 7 353 1340---></pre>
-        <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
-      </div>
+      <div id = "seed-box" class="code-box"></div> <!-- ここへのseed値の入力は不要になりました -->
       <div class="air"></div>
       <textarea name="All-submit" rows="15" placeholder="複数行に渡って出力"></textarea>
       <button class="All-submit-btn">提出</button>
@@ -461,6 +432,9 @@ Yes
   document.addEventListener("DOMContentLoaded", function() {
       MathJax.typesetPromise();
   });
+
+  // ジャッジに使用するseed値をここに入力してください。
+  const seeds = [1,97];
 
   // 各テストケースの正解を以下の形式に従って入力してください。
   const expectedAnswers = {
@@ -489,6 +463,41 @@ Yes
   const referenceJST = new Date('2026-08-01T12:00:00+09:00');
 
 // ここより下は触らないでください
+
+    // ========ここからDOM自動生成 ========
+  const submitContainer = document.getElementById("submit-container");
+  const seedBox = document.getElementById("seed-box");
+
+  // 自動で個別提出の欄を作成する
+  function generateSubmitBlocks() {
+    seeds.forEach((seed,i) =>{
+        const caseNum = String(i+1).padStart(2,"0");
+        const block = document.createElement("div");
+        block.className = "submit-block";
+        block.innerHTML = `
+        <h3>input_${caseNum}</h3>
+        <div class = "code-box">
+            <pre>${seed}</pre>
+          <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+        </div>
+
+        <h3>output_${caseNum}</h3>
+        <textarea rows="2", placeholder = "ここに入力"></textarea>
+        `
+
+        submitContainer.appendChild(block);
+    });
+  }
+  // 自動でseed値を一括表示する
+  function generateSeeds(){
+    seedBox.innerHTML = `<pre>${seeds.join(" ")}</pre>
+    <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>`
+  }
+
+  generateSubmitBlocks();
+  generateSeeds();
+
+
   const cntTestCases = expectedAnswers.length;
 
   // ========== ここから EPS 許容ロジック ==========
